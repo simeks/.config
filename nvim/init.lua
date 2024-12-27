@@ -48,7 +48,7 @@ vim.keymap.set("v", "<C-c>", "<Esc>")
 vim.keymap.set("i", "<C-c>", "<Esc>")
 vim.keymap.set("v", "<C-p>", '"0p')
 
-vim.keymap.set("n", "<leader>tw", "<cmd>:set wrap!<CR>", { desc = "Toggle line wrap" } )
+vim.keymap.set("n", "<leader>tw", "<cmd>:set wrap!<CR>", { desc = "Toggle line wrap" })
 
 -- Diagnostics
 
@@ -56,7 +56,7 @@ vim.keymap.set("n", "<leader>tw", "<cmd>:set wrap!<CR>", { desc = "Toggle line w
 vim.diagnostic.handlers["signs"] = {}
 vim.opt.signcolumn = "no"
 
-vim.keymap.set("n", "<leader>td", function ()
+vim.keymap.set("n", "<leader>td", function()
   vim.diagnostic.enable(not vim.diagnostic.is_enabled())
 end, { desc = "Toggle Diagnostics" })
 
@@ -90,7 +90,7 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
   if vim.v.shell_error ~= 0 then
     vim.api.nvim_echo({
       { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
-      { out, "WarningMsg" },
+      { out,                            "WarningMsg" },
       { "\nPress any key to exit..." },
     }, true, {})
     vim.fn.getchar()
@@ -107,7 +107,7 @@ require("lazy").setup({
       require('mini.ai').setup { n_lines = 500 }
       require('mini.surround').setup()
       local statusline = require 'mini.statusline'
-      statusline.setup { }
+      statusline.setup {}
       ---@diagnostic disable-next-line: duplicate-set-field
       statusline.section_location = function()
         return '%2l:%-2v'
@@ -141,7 +141,7 @@ require("lazy").setup({
         mappings = false,
       },
       spec = {
-        { "<leader>c", group = "[C]ode", mode = { "n", "x" } },
+        { "<leader>c", group = "[C]ode",     mode = { "n", "x" } },
         { "<leader>d", group = "[D]ocument" },
         { "<leader>r", group = "[R]ename" },
         { "<leader>s", group = "[S]earch" },
@@ -191,7 +191,8 @@ require("lazy").setup({
       local builtin = require "telescope.builtin"
       vim.keymap.set("n", "<leader>sf", builtin.find_files, { desc = "[S]earch [F]iles" })
       vim.keymap.set("n", "<leader>sg", builtin.live_grep, { desc = "[S]earch by [G]rep" })
-      vim.keymap.set("n", "<leader>/", builtin.current_buffer_fuzzy_find, { desc = "[/] Fuzzily search in current buffer" })
+      vim.keymap.set("n", "<leader>/", builtin.current_buffer_fuzzy_find,
+        { desc = "[/] Fuzzily search in current buffer" })
       vim.keymap.set("n", "<leader>sr", builtin.resume, { desc = "[S]earch [R]esume" })
       vim.keymap.set("n", "<leader>s.", builtin.oldfiles, { desc = "[S]earch Recent Files ('.' for repeat)" })
       vim.keymap.set("n", "<leader><leader>", builtin.buffers, { desc = "[ ] Find existing buffers" })
@@ -216,7 +217,6 @@ require("lazy").setup({
     -- Main LSP Configuration
     "neovim/nvim-lspconfig",
     dependencies = {
-      'L3MON4D3/LuaSnip',
       { "williamboman/mason.nvim", config = true },
       "williamboman/mason-lspconfig.nvim",
       "WhoIsSethDaniel/mason-tool-installer.nvim",
@@ -241,7 +241,7 @@ require("lazy").setup({
 
           map("<leader>rn", vim.lsp.buf.rename, "[R]e[n]ame")
           map("<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction", { "n", "x" })
-          map("<leader>z", function (_)
+          map("<leader>z", function(_)
             vim.lsp.buf.code_action({
               context = { only = { "source.fixAll" }, diagnostics = {} },
               apply = true,
@@ -255,23 +255,30 @@ require("lazy").setup({
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
 
-      require("lspconfig")['lua_ls'].setup{
+      require("lspconfig")['lua_ls'].setup {
         capabilities = capabilities,
       }
-      require("lspconfig")['glsl_analyzer'].setup{
+      require("lspconfig")['glsl_analyzer'].setup {
         capabilities = capabilities,
       }
-      require("lspconfig")['zls'].setup{
+      require("lspconfig")['zls'].setup {
         capabilities = capabilities,
+        cmd = { "/Users/simon/tools/zig/zls" },
+        settings = {
+          zls = {
+            zig_exe_path = "/Users/simon/tools/zig/zig",
+            zig_lib_path = "/Users/simon/tools/zig/lib",
+          }
+        },
       }
       -- Fixes annoying location list popping up when saving
       -- https://www.reddit.com/r/Zig/comments/1c3orye/neovim_disable_location_list_on_save/
       vim.g.zig_fmt_autosave = false
 
-      require('mason-tool-installer').setup{ ensure_installed = {
+      require('mason-tool-installer').setup { ensure_installed = {
         'lua_ls',
         'stylua',
-      }}
+      } }
       require("mason-lspconfig").setup {}
     end,
   },
@@ -284,6 +291,7 @@ require("lazy").setup({
     "hrsh7th/nvim-cmp",
     event = "InsertEnter",
     dependencies = {
+      'L3MON4D3/LuaSnip',
       "saadparwaiz1/cmp_luasnip",
       "hrsh7th/cmp-nvim-lsp",
       "hrsh7th/cmp-path",
@@ -295,6 +303,7 @@ require("lazy").setup({
 
       cmp.setup {
         completion = {
+          completeopt = "menu,menuone,noinsert",
           autocomplete = false,
         },
         snippet = {
@@ -309,9 +318,14 @@ require("lazy").setup({
           ["<C-b>"] = cmp.mapping.scroll_docs(-4),
           ["<C-f>"] = cmp.mapping.scroll_docs(4),
 
-          ["<C-k>"] = cmp.mapping.confirm { select = true },
+          ["<C-k>"] = cmp.mapping(function()
+            if cmp.visible() then
+              cmp.confirm { select = true }
+            else
+              cmp.complete {}
+            end
+          end, { "i", "s" }),
 
-          ["<C-CR>"] = cmp.mapping.complete {},
           ["<C-c>"] = cmp.mapping.abort(),
 
           ["<C-l>"] = cmp.mapping(function()
@@ -357,7 +371,7 @@ require("lazy").setup({
         }
       end,
       formatters_by_ft = {
-        lua = { 'stylua' },
+        -- lua = { 'stylua' },
         python = { 'black' },
         json = { 'prettier' },
       },
@@ -386,4 +400,3 @@ require("lazy").setup({
   }
 
 })
-
