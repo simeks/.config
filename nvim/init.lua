@@ -397,6 +397,41 @@ require("lazy").setup({
         },
       },
     },
-  }
+  },
+  {
+    "zbirenbaum/copilot.lua",
+    cmd = "Copilot",
+    event = "InsertEnter",
+    config = function()
+      require("copilot").setup({
+        panel = {
+          keymap = {
+            jump_prev = "[[",
+            jump_next = "]]",
+            accept = "<CR>",
+            refresh = "gr",
+            open = "<M-CR>"
+          },
+        },
+        suggestion = {
+          enabled = true,
+          auto_trigger = true,
+          hide_during_completion = true,
+          debounce = 75,
+          keymap = {
+            accept = "<C-j>",
+            accept_word = false,
+            accept_line = false,
+            next = "<M-]>",
+            prev = "<M-[>",
+            dismiss = "<C-c>",
+          },
+        },
+      })
 
+      vim.keymap.set("n", "<leader>tc", function()
+        require("copilot.suggestion").toggle_auto_trigger()
+      end, { desc = "Toggle auto copilot" })
+    end,
+  },
 })
