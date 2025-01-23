@@ -161,7 +161,7 @@ require("lazy").setup({
       highlight = {
         enable = true,
       },
-      indent = { enable = true, disable = { 'zig' } },
+      indent = { enable = true, disable = { 'zig', 'glsl' } },
     },
   },
   {
@@ -349,6 +349,15 @@ require("lazy").setup({
           { name = "path" },
         },
       }
+
+      vim.keymap.set("n", "<leader>ta", function()
+        local current_setting = cmp.get_config().completion.autocomplete
+        if current_setting and #current_setting > 0 then
+          cmp.setup({ completion = { autocomplete = false } })
+        else
+          cmp.setup({ completion = { autocomplete = { cmp.TriggerEvent.TextChanged } } })
+        end
+      end, { desc = "Toggle autocomplete" })
     end,
   },
   {
@@ -415,7 +424,7 @@ require("lazy").setup({
         },
         suggestion = {
           enabled = true,
-          auto_trigger = true,
+          auto_trigger = false,
           hide_during_completion = true,
           debounce = 75,
           keymap = {
